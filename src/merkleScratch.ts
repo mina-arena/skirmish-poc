@@ -1,4 +1,4 @@
-import { Field, MerkleWitness, MerkleTree, Poseidon, isReady, shutdown } from 'snarkyjs';
+import { Field, MerkleTree, Poseidon, isReady, shutdown } from 'snarkyjs';
 
 await isReady;
 
@@ -17,10 +17,11 @@ console.log(Poseidon.hash([Field(0), Field(1)]).toString());
 console.log(tree.getNode(1, 1n).toString());
 console.log(Poseidon.hash([Field(2), Field(3)]).toString());
 console.log(tree.getNode(2, 0n).toString());
-console.log(Poseidon.hash([
-  Poseidon.hash([Field(0), Field(1)]),
-  Poseidon.hash([Field(2), Field(3)])
-]).toString()
+console.log(
+  Poseidon.hash([
+    Poseidon.hash([Field(0), Field(1)]),
+    Poseidon.hash([Field(2), Field(3)]),
+  ]).toString()
 );
 
 await shutdown();
