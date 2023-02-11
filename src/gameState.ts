@@ -1,8 +1,4 @@
-import {
-  Field,
-  Struct,
-  MerkleTree,
-} from 'snarkyjs';
+import { Field, Struct, MerkleMap } from 'snarkyjs';
 
 import { Piece } from './piece';
 import { Position } from './position';
@@ -13,12 +9,16 @@ export class GameState extends Struct({
   playerTurn: Field,
 }) {
   static empty(): GameState {
-    const pieces = new MerkleTree(3);
+    const pieces = new MerkleMap();
 
-    pieces.setLeaf(0n, new Piece(Position.fromXY(0, 0), Unit.default()).hash());
-    pieces.setLeaf(1n, new Piece(Position.fromXY(0, 15), Unit.default()).hash());
-    pieces.setLeaf(2n, new Piece(Position.fromXY(15, 0), Unit.default()).hash());
-    pieces.setLeaf(3n, new Piece(Position.fromXY(15, 15), Unit.default()).hash());
+    const pos1 = Position.fromXY(0, 0);
+    const pos2 = Position.fromXY(0, 15);
+    const pos3 = Position.fromXY(15, 0);
+    const pos4 = Position.fromXY(15, 15);
+    pieces.set(pos1.merkleKey(), new Piece(pos1, Unit.default()).hash());
+    pieces.set(pos2.merkleKey(), new Piece(pos2, Unit.default()).hash());
+    pieces.set(pos3.merkleKey(), new Piece(pos3, Unit.default()).hash());
+    pieces.set(pos4.merkleKey(), new Piece(pos4, Unit.default()).hash());
 
     return new GameState({
       piecesRoot: pieces.getRoot(),
