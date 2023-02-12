@@ -11,10 +11,10 @@ import {
   MerkleMapWitness,
 } from 'snarkyjs';
 
-import { GameState } from './gameState';
-import { Piece } from './piece';
-import { Position } from './position';
-import { TurnAction } from './turnAction';
+import { GameState } from './gameState.js';
+import { Piece } from './piece.js';
+import { Position } from './position.js';
+import { TurnAction } from './turnAction.js';
 
 export class Turn extends Struct({
   actionsNonce: Field, // nonce of actions processed so far
@@ -22,13 +22,22 @@ export class Turn extends Struct({
   currentGameState: Field, // game state after the actions applied in this turn
   player: PublicKey, // the player this turn is for
 }) {
-  constructor(startingGameState: Field, player: PublicKey) {
+  constructor(
+    actionsNonce: Field,
+    startingGameState: Field,
+    currentGameState: Field,
+    player: PublicKey
+  ) {
     super({
-      actionsNonce: Field(0),
+      actionsNonce,
       startingGameState,
-      currentGameState: startingGameState,
+      currentGameState,
       player,
     });
+  }
+
+  static init(startingGameState: Field, player: PublicKey): Turn {
+    return new Turn(Field(0), startingGameState, startingGameState, player);
   }
 
   applyMoveAction(
@@ -38,7 +47,7 @@ export class Turn extends Struct({
     gameState: GameState,
     pieceWitness: MerkleMapWitness,
     newPosition: Position
-  ): void {
+  ): Turn {
     const v = actionSignature.verify(this.player, action.signatureArguments());
     v.assertTrue();
     action.nonce.assertGt(this.actionsNonce);
@@ -55,9 +64,7 @@ export class Turn extends Struct({
     piece.position = newPosition;
     [root, key] = pieceWitness.computeRootAndKey(piece.hash());
 
-    // Update the turn so that future actions can be applied
-    this.currentGameState = root;
-    this.actionsNonce = action.nonce;
+    return new Turn(action.nonce, this.startingGameState, root, this.player);
   }
 
   applyAttackAction(
@@ -68,7 +75,7 @@ export class Turn extends Struct({
     pieceWitness: MerkleMapWitness,
     otherPieceWitness: MerkleMapWitness,
     otherPiece: Piece
-  ): void {
+  ): Turn {
     const v = actionSignature.verify(this.player, action.signatureArguments());
     v.assertTrue();
     action.nonce.assertGt(this.actionsNonce);
@@ -92,8 +99,6 @@ export class Turn extends Struct({
 
     [root, key] = otherPieceWitness.computeRootAndKey(otherPiece.hash());
 
-    // Update the turn so that future actions can be applied
-    this.currentGameState = root;
-    this.actionsNonce = action.nonce;
+    return new Turn(action.nonce, this.startingGameState, root, this.player);
   }
 }

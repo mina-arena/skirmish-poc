@@ -1,10 +1,6 @@
-import {
-  Field,
-  Struct,
-  Poseidon,
-} from 'snarkyjs';
+import { Field, Struct, Poseidon } from 'snarkyjs';
 
-import { UnitStats } from './unitStats';
+import { UnitStats } from './unitStats.js';
 
 // For now, a unit is just its stats
 // In the future, it can also have other metadata
