@@ -58,7 +58,7 @@ export const TurnProgram = Experimental.ZkProgram({
         newState.actionsNonce.assertGt(turn.actionsNonce);
         newState.startingGameState.assertEquals(turn.startingGameState);
         newState.player.assertEquals(turn.player);
-        turn.applyMoveAction(
+        const turn_ = turn.applyMoveAction(
           action,
           actionSignature,
           piece,
@@ -66,7 +66,7 @@ export const TurnProgram = Experimental.ZkProgram({
           pieceWitness,
           newPosition
         );
-        newState.currentGameState.assertEquals(turn.currentGameState);
+        newState.currentGameState.assertEquals(turn_.currentGameState);
       },
     },
   },

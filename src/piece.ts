@@ -24,4 +24,8 @@ export class Piece extends Struct({
       this.condition.hash(),
     ]);
   }
+
+  clone(): Piece {
+    return new Piece(this.position, this.baseUnit);
+  }
 }

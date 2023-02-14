@@ -16,21 +16,22 @@ let player1Account: PublicKey,
   player1PrivateKey: PrivateKey,
   player2Account: PublicKey;
 
-const Local = Mina.LocalBlockchain({ proofsEnabled: false });
+const Local = Mina.LocalBlockchain();
 Mina.setActiveInstance(Local);
 ({ privateKey: player1PrivateKey, publicKey: player1Account } =
   Local.testAccounts[1]);
 ({ publicKey: player2Account } = Local.testAccounts[2]);
 
-// console.time('Compiling Circuits')
-// console.time('Compiling Turn Circuit')
-// await TurnProgram.compile();
-// console.timeEnd('Compiling Turn Circuit')
-// console.time('Compiling Game Circuit')
-// await GameProgram.compile();
-// console.timeEnd('Compiling Game Circuit')
-// console.timeEnd('Compiling Circuits')
+console.time('Compiling Circuits');
+console.time('Compiling Turn Circuit');
+await TurnProgram.compile();
+console.timeEnd('Compiling Turn Circuit');
+console.time('Compiling Game Circuit');
+await GameProgram.compile();
+console.timeEnd('Compiling Game Circuit');
+console.timeEnd('Compiling Circuits');
 
+console.time('Init');
 const piecesMap = getStartingPiecesMap();
 const game = GameState.empty(player1Account, player2Account);
 const g0 = await GameProgram.init(
@@ -38,7 +39,9 @@ const g0 = await GameProgram.init(
   player1Account,
   player2Account
 );
+console.timeEnd('Init');
 
+console.time('P1 turn');
 // player 1's turn
 // - move the unit at 0,0 to 2,2 first, then move the piece at 0,15 to 2,15
 const p1t1Actions = [
@@ -69,18 +72,21 @@ const p1 = await applyTurnMove(
 const p2 = await applyTurnMove(
   p1,
   turn,
-  p1t1Actions[0],
+  p1t1Actions[1],
   game,
   piecesMap,
   0,
-  0,
+  15,
   2,
-  2,
+  13,
   player1PrivateKey
 );
+console.timeEnd('P1 turn');
 
+console.time('Prove turn');
 // applyTurnToGame should mutate `game` for us
 const g1 = await applyTurnToGame(g0, p2, game);
+console.timeEnd('Prove turn');
 
 const valid = await GameProgram.verify(g1);
 console.log('valid?', valid);

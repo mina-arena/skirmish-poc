@@ -61,8 +61,9 @@ export class Turn extends Struct({
 
     // TODO: verify move is valid
 
-    piece.position = newPosition;
-    [root, key] = pieceWitness.computeRootAndKey(piece.hash());
+    const endingPiece = piece.clone();
+    endingPiece.position = newPosition;
+    [root, key] = pieceWitness.computeRootAndKey(endingPiece.hash());
 
     return new Turn(action.nonce, this.startingGameState, root, this.player);
   }
@@ -100,5 +101,14 @@ export class Turn extends Struct({
     [root, key] = otherPieceWitness.computeRootAndKey(otherPiece.hash());
 
     return new Turn(action.nonce, this.startingGameState, root, this.player);
+  }
+
+  toJSON() {
+    return {
+      actionsNonce: this.actionsNonce.toString(),
+      startingGameState: this.startingGameState.toString(),
+      currentGameState: this.currentGameState.toString(),
+      player: this.player.toBase58(),
+    };
   }
 }

@@ -54,23 +54,25 @@ export const applyTurnMove = async (
   toY: number,
   playerKey: PrivateKey
 ): Promise<TurnProof> => {
-  const piece = getPiece(fromX, fromY);
+  const startingPiece = getPiece(fromX, fromY);
   const pos = Position.fromXY(fromX, fromY);
   const newPos = Position.fromXY(toX, toY);
   const turn_ = turn.applyMoveAction(
     action,
     action.sign(playerKey),
-    piece,
+    startingPiece,
     game,
     piecesMap.getWitness(pos.merkleKey()),
     newPos
   );
+  console.log('Turn', turn.toJSON());
+  console.log('Turn_', turn_.toJSON());
   const p1 = await TurnProgram.applyMove(
     turn_,
     p0,
     action,
     action.sign(playerKey),
-    piece,
+    startingPiece,
     game,
     piecesMap.getWitness(pos.merkleKey()),
     newPos
@@ -78,11 +80,14 @@ export const applyTurnMove = async (
   turn = turn.applyMoveAction(
     action,
     action.sign(playerKey),
-    piece,
+    startingPiece,
     game,
     piecesMap.getWitness(pos.merkleKey()),
     newPos
   );
+  // todo: this is breaking since the `key` of the map is position, position is not allowed to change
+  // need to use something else for unit id
+  game.piecesRoot = turn.currentGameState;
   return p1;
 };
 
