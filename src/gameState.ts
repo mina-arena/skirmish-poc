@@ -5,7 +5,8 @@ import { Position } from './position.js';
 import { Unit } from './unit.js';
 
 export class GameState extends Struct({
-  piecesRoot: Field, // root hash of pieces in the arena keyed by their position
+  piecesRoot: Field, // root hash of pieces in the arena keyed by their id
+  arenaRoot: Field, // root hash of a merkle map of positions which are occupied
   playerTurn: Field,
   player1: PublicKey,
   player2: PublicKey,
@@ -15,18 +16,28 @@ export class GameState extends Struct({
 }) {
   static empty(player1: PublicKey, player2: PublicKey): GameState {
     const pieces = new MerkleMap();
+    const arena = new MerkleMap();
 
     const pos1 = Position.fromXY(0, 0);
     const pos2 = Position.fromXY(0, 15);
     const pos3 = Position.fromXY(15, 0);
     const pos4 = Position.fromXY(15, 15);
-    pieces.set(pos1.merkleKey(), new Piece(pos1, Unit.default()).hash());
-    pieces.set(pos2.merkleKey(), new Piece(pos2, Unit.default()).hash());
-    pieces.set(pos3.merkleKey(), new Piece(pos3, Unit.default()).hash());
-    pieces.set(pos4.merkleKey(), new Piece(pos4, Unit.default()).hash());
+    const piece1 = new Piece(Field(1), pos1, Unit.default());
+    const piece2 = new Piece(Field(2), pos2, Unit.default());
+    const piece3 = new Piece(Field(3), pos3, Unit.default());
+    const piece4 = new Piece(Field(4), pos4, Unit.default());
+    pieces.set(piece1.id, piece1.hash());
+    pieces.set(piece2.id, piece2.hash());
+    pieces.set(piece3.id, piece3.hash());
+    pieces.set(piece4.id, piece4.hash());
+    arena.set(pos1.merkleKey(), Field(1));
+    arena.set(pos2.merkleKey(), Field(2));
+    arena.set(pos3.merkleKey(), Field(3));
+    arena.set(pos4.merkleKey(), Field(4));
 
     return new GameState({
       piecesRoot: pieces.getRoot(),
+      arenaRoot: arena.getRoot(),
       playerTurn: Field(0),
       player1,
       player2,

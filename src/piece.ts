@@ -5,12 +5,14 @@ import { Position } from './position.js';
 import { UnitCondition } from './unitCondition.js';
 
 export class Piece extends Struct({
+  id: Field,
   position: Position,
   baseUnit: Unit,
   condition: UnitCondition,
 }) {
-  constructor(position: Position, baseUnit: Unit) {
+  constructor(id: Field, position: Position, baseUnit: Unit) {
     super({
+      id,
       position,
       baseUnit,
       condition: new UnitCondition(baseUnit.stats),
@@ -26,6 +28,6 @@ export class Piece extends Struct({
   }
 
   clone(): Piece {
-    return new Piece(this.position, this.baseUnit);
+    return new Piece(this.id, this.position, this.baseUnit);
   }
 }

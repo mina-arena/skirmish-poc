@@ -15,12 +15,8 @@ export class Position extends Struct({
     return Poseidon.hash(this.x.toFields().concat(this.y.toFields()));
   }
 
-  // Assuming every x,y in some set is indexed into a merkle tree
-  // 0,1  => 1
-  // 1, 3 => 11
-  // 4, 0 => 32
   merkleKey(): Field {
-    return this.x.mul(8).add(this.y).toFields()[0];
+    return Poseidon.hash(this.x.toFields().concat(this.y.toFields()));
   }
 
   // simple distance calc, just x + y, not using sqrt
